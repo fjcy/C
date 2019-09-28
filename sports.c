@@ -8,6 +8,14 @@ typedef struct{
     double competition[5];//competition[0] 表示100米赛跑，其余类推（100m，400m，跳远、接力、铅球）
 }Student;
 
+typedef struct{
+    Student student[20];
+    int rank[20][5];
+    int number; //该学院有多少人
+    int scoreComprehension;
+    int collegeRank;
+}College;
+
 void menu();
 void inputInfo();
 void readFile(char path[]);
@@ -16,21 +24,47 @@ void printAllStudentInfo();
 void queryScoreByCompetition();
 void queryScoreByCollege();
 int getRank(Student studentTemp, int competitionItem);
+void sortByCollege();
+void sortByComprehension();
 
 Student student[100];
-int number=0;
+int number=0; //选手总人数
+College college[6]; //collect[0] 表示为“工商”，其余类推（“工商”，“数学”、“金融”、“信息”、“人文”、“经济”）
 
 int main(){
     int choice; //选择菜单项
     char path[] = "sportsScore";
     int selection; //选择查询的方式
     readFile(path);
+
+    for(int j=0;j<6;j++){
+        college[j].number = 0;
+        college[j].scoreComprehension = 0;
+        for(int i=0;i<20;i++)
+            for(int k=0;k<5;k++)
+                college[j].rank[i][k] = 0;
+    }
+
+    //将每个选手分到对应的学院
+    for(int i=0;i<number;i++){
+        for(int j=0;j<6;j++){
+            if(student[i].college[j] == 1){
+                college[j].student[college[j].number] = student[i];
+                college[j].number++;
+                break;
+            }
+        }
+    }
+
+    sortByCollege();
+
     do{
         menu();
         scanf("%d",&choice);
         switch(choice){
             case 1:
                 inputInfo();
+                sortByCollege();
                 break;
             case 2:
                 printf("--  1 - 按比赛项目查询     \n");
@@ -50,7 +84,31 @@ int main(){
                 }while(1);
                 break;
             case 3:
-//                printAllBooksInfo();
+                computeConprehension();
+                for(int i=0;i<6;i++){
+                    printf("学院：");
+                    switch(i){
+                        case 0:
+                            printf("工商\t");
+                            break;
+                        case 1:
+                            printf("数学\t");
+                            break;
+                        case 2:
+                            printf("金融\t");
+                            break;
+                        case 3:
+                            printf("信息\t");
+                            break;
+                        case 4:
+                            printf("人文\t");
+                            break;
+                        case 5:
+                            printf("经济\t");
+                            break;
+                    }
+                    printf("分数：%d\t排名：%d\n",college[i].scoreComprehension, college[i].collegeRank);
+                }
                 break;
             case 4:
                 printAllStudentInfo();
@@ -106,7 +164,7 @@ void menu(){
     printf("--  1 - 录入成绩                                --\n");
     printf("--  2 - 成绩查询                                --\n");
     printf("--  3 - 综合成绩计算                            --\n");
-    printf("--  4 - 打印学生信息                            --\n");
+    printf("--  4 - 查看所有学生信息                         --\n");
     printf("--  5 - 退出                                   --\n");
     printf("-------------------------------------------------\n");
 }
@@ -205,7 +263,7 @@ void queryScoreByCompetition(){
     }
 }
 
-//按学院查询成绩
+//打印出学院每个选手的排名
 void queryScoreByCollege(){
     int choice;
     Student studentTemp[20];
@@ -220,45 +278,49 @@ void queryScoreByCollege(){
         }
     }while(1);
 
-//    将该学院的人挑出来
-    for(int i=0;i<number;i++){
-        if(student[i].college[choice-1] == 1){
-            studentTemp[numberColleges] = student[i];
-            numberColleges++;
-        }
-    }
-
-    int rank[5]; //当前比赛选手五项比赛的排名
     printf("该学院所有参赛的人员信息：\n");
-    for(int i=0;i<numberColleges;i++){
-        printf("姓名：%s\t",studentTemp[i].name);
+    for(int i=0;i<college[choice-1].number;i++){
+        printf("姓名：%s\t",college[choice-1].student[i].name);
         for(int j=0;j<5;j++){
-            if(studentTemp[i].competition[j] != 0){
+            if(college[choice-1].student[i].competition[j] != 0){
                 switch(j){
                     case 0:
-                        printf("100米成绩：%.2lf\t",studentTemp[i].competition[0]);
+                        printf("100米成绩：%.2lf\t",college[choice-1].student[i].competition[0]);
                         break;
                     case 1:
-                        printf("400米成绩：%.2lf\t",studentTemp[i].competition[1]);
+                        printf("400米成绩：%.2lf\t",college[choice-1].student[i].competition[1]);
                         break;
                     case 2:
-                        printf("跳远成绩：%.2lf\t",studentTemp[i].competition[2]);
+                        printf("跳远成绩：%.2lf\t",college[choice-1].student[i].competition[2]);
                         break;
                     case 3:
-                        printf("接力成绩：%.2lf\t",studentTemp[i].competition[3]);
+                        printf("接力成绩：%.2lf\t",college[choice-1].student[i].competition[3]);
                         break;
                     case 4:
-                        printf("铅球成绩：%.2lf\t",studentTemp[i].competition[4]);
+                        printf("铅球成绩：%.2lf\t",college[choice-1].student[i].competition[4]);
                         break;
                 }
-                printf("排名：%d\t",getRank(studentTemp[i], j));
+                printf("排名：%d\t",college[choice-1].rank[i][j]);
             }
         }
         printf("\n");
     }
 }
 
-//在按学院查询成绩时，给出每个选手的排名
+//把学院的每个选手所参加比赛的排名计算出来
+void sortByCollege(){
+    for(int i=0;i<6;i++){
+        for(int j=0;j<college[i].number;j++){
+            for(int k=0;k<5;k++){
+                if(college[i].student[j].competition[k] != 0){
+                    college[i].rank[j][k] = getRank(college[i].student[j],k);
+                }
+            }
+        }
+    }
+}
+
+//给出每个选手所参加比赛项目的排名
 int getRank(Student studentTemp, int competitionItem){
     int rank=1;
     for(int i=0;i<number;i++){ //循环所有比赛选手
@@ -270,6 +332,55 @@ int getRank(Student studentTemp, int competitionItem){
         }
     }
     return rank;
+}
+
+//综合成绩计算
+void computeConprehension(){
+    int scoreComprehension;
+    for(int i=0;i<6;i++){
+        scoreComprehension = 0;
+        for(int j=0;j<college[i].number;j++){
+            for(int k=0;k<5;k++){
+                if(college[i].rank[j][k] <= 5){
+                    switch(college[i].rank[j][k]){ //第1名得分 7，第2名得分 5，第3名得分3，第4名得分2，第5名得分 1
+                        case 1:
+                            scoreComprehension += 7;
+                            break;
+                        case 2:
+                            scoreComprehension += 5;
+                            break;
+                        case 3:
+                            scoreComprehension += 3;
+                            break;
+                        case 4:
+                            scoreComprehension += 2;
+                            break;
+                        case 5:
+                            scoreComprehension += 1;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+        college[i].scoreComprehension = scoreComprehension;
+    }
+
+    sortByComprehension();
+}
+
+void sortByComprehension(){
+    int temp;
+    for(int i=0;i<6;i++){
+        temp = 1;
+        for(int j=0;j<6;j++){
+            if(college[i].scoreComprehension < college[j].scoreComprehension){
+                temp++;
+            }
+        }
+        college[i].collegeRank = temp;
+    }
 }
 
 //打印所有学生信息
