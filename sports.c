@@ -202,6 +202,11 @@ void inputInfo(){
         printf("铅球成绩：");
         scanf("%lf",&student[number].competition[4]);
         number++;
+
+        //将新加的学生加入到对应的学院结构体数组中
+        college[temp-1].student[college[temp-1].number] = student[number];
+        college[temp-1].number++;
+
         printf("是否要继续录入：是(1) 否(2)\t");
         scanf("%d",&isContinue);
         if(isContinue == 1){
