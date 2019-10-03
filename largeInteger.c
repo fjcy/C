@@ -212,6 +212,7 @@ void multiply(Digit *a1, Digit *b1, Digit *c1){
     }
 }
 
+//得到除法的商,每运行一次，就相当于加一
 void one(char *a){
     int i,l=strlen(a);
     int carry=1;
@@ -228,7 +229,7 @@ void one(char *a){
         a[i] = t;
     }
 
-    if(carry==1)
+    if(carry == 1)
         a[i++] = '1';
     a[i] = '\0';
 }
@@ -236,7 +237,6 @@ void one(char *a){
 //C为商，D为余数
 void divide(Digit *a1, Digit *b1, Digit *c1, Digit *d1){
     char t[100] = {0};
-    char b[2] = "0";
     Digit *temp;
     temp = (Digit *)malloc(sizeof(Digit));
 
@@ -247,13 +247,14 @@ void divide(Digit *a1, Digit *b1, Digit *c1, Digit *d1){
         init(d1, a1->s);
         init(c1, "0");
     }else{
-        init(temp,a1->s);
+        init(temp, a1->s);
         //不断从被除数里面减去除数，直到被除数小于除数
-        while(com(temp,b1)>=0){
+        while(com(temp, b1)>=0){
             subtract(temp,b1,c1);
-            init(temp,c1->s);
+            init(temp, c1->s);
             one(t);
         }
+
         init(c1,t);
         init(d1,temp->s);
    }
