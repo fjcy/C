@@ -105,6 +105,7 @@ int main(){
 //        printf("分别是：");
 //        for(int j=0; j < teacher[i].preferenceCount; j++){
 //            scanf("%d",&teacher[i].preference[j]);
+//            teacher[i].preference[j]--;
 //        }
 //
 //        teacherNumber++;
